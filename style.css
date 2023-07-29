@@ -1,0 +1,39 @@
+body {
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    height: 80vh;
+    font-size: 20px;
+}
+
+#map {
+    display: inline-block;
+    width: 70%;
+    border: 5px blue solid;
+    margin: 10px;
+}
+
+#barchart {
+    display: inline-block;
+    width: 30%;
+    border: 5px red solid;
+    margin: 10px;
+}
+
+.country {
+    /* fill:#ccc; */
+    stroke: #999;
+}
+
+#tooltip {
+    visibility: hidden;
+    display: block;
+    position: absolute;
+    text-align: left;
+    /* border: 1px solid black; */
+    background-color: white;
+    opacity: 0;
+    padding: 10px;
+}

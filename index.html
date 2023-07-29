@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Include D3.js from a CDN -->
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://d3js.org/topojson.v2.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <title>Wage Gap Visualization</title>
+    </head>
+
+    <body>
+        <h1>Gender Wage Gap</h1>
+        <div>
+            Gender Wage Gap around the world. source: <a href="https://data.oecd.org/earnwage/gender-wage-gap.htm">OECD - Gender Wage Gap</a>
+        </div>
+        <div class="container">
+            <div id="map">
+            </div>
+            <div id="barchart">
+                barchart (vertical)
+            </div>
+        </div>
+        <div id="tooltip">
+            Name: <span id="name"></span><br>
+            Value: <span id="value"></span><br>
+            Year: <span id="year"></span><br>
+        </div>
+        <div id="timescale">
+            timescale
+        </div>
+        <script type="text/javascript" src="app.js"></script>
+    </body>
+
+</html>
