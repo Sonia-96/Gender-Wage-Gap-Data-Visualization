@@ -4,6 +4,7 @@
         <!-- Include D3.js from a CDN -->
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <script src="https://d3js.org/topojson.v2.min.js"></script>
+        <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
         <link rel="stylesheet" type="text/css" href="style.css" />
         <title>Wage Gap Visualization</title>
     </head>
@@ -13,7 +14,10 @@
         <div>
             Gender Wage Gap around the world. source: <a href="https://data.oecd.org/earnwage/gender-wage-gap.htm">OECD - Gender Wage Gap</a>
         </div>
-        <div class="container">
+        <div id="legend-container">
+            <svg width="200" height="50" id="legend"></svg>
+        </div>
+        <div id="map-container">
             <div id="map">
             </div>
             <div id="barchart">
@@ -29,7 +33,6 @@
             <p>Year: <span id="slider-value">2020</span></p>
             <div id="slider"></div>
         </div>
-        
         <script src="https://unpkg.com/d3-simple-slider"></script>
         <script type="text/javascript" src="app.js"></script>
     </body>
