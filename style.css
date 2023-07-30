@@ -2,7 +2,7 @@ body {
     text-align: center;
 }
 
-.container {
+#map-container {
     display: flex;
     height: 75vh;
     font-size: 20px;
@@ -57,4 +57,14 @@ body {
 #slider-container p{
     padding: 0;
     margin: 10px 0 0 0;
+}
+
+#legend-container {
+    fill: white;
+    opacity: 0.9;
+    stroke: gray;
+    stroke-width: 2;
+    position: absolute;
+    left: 50%;
+    top: 15vh;
 }
