@@ -1,8 +1,8 @@
-let wageData = {}; // {year: {country: value}}
+let wageData = {}; // {year: {country: id, name, value}}
 let countryData;
+let map_url = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 window.onload = async function() {
     loadData().then(() => {
-        let map_url = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
         d3.json(map_url).then(
             (data, error) => {
                 if (error) {
@@ -11,24 +11,32 @@ window.onload = async function() {
                     countryData = topojson.feature(data, data.objects.countries).features; // convert topojson to GeoJson
                     console.log(wageData);
                     drawMap(2020);
-                    drawLegend();
                 }
             } 
         )
     })
 }
 
-function fillColor(value) {
-    if (value == 0) {
-        return '#ccc';
-    } else if (value < 10) {
-        return 'orange';
-    } else if (value < 20) {
-        return 'tomato';
-    } else {
-        return 'red';
-    }
-}
+const slider = d3.sliderHorizontal()
+    .min(1970)
+    .max(2020)
+    .step(1)
+    .width(1000)
+    .default(2020)
+    .tickFormat(d3.format("d"))
+    .on('onchange', (val) => {
+        d3.select("#slider-value").text(val);
+        cleanMap();
+        drawMap(val);
+    })
+
+d3.select('#slider')
+    .append('svg')
+    .attr('width', 1200)
+    .attr('height', 100)
+    .append('g')
+    .attr('transform', 'translate(30,30)')
+    .call(slider);
 
 async function loadData() {
     let text = await d3.text("employee_wage_gap.json");
@@ -57,12 +65,23 @@ function getWageGap(year, id) {
     return country === undefined ? 0 : country['value'];
 }
 
+function fillColor(value) {
+    if (value == 0) {
+        return '#ccc';
+    } else if (value < 10) {
+        return 'orange';
+    } else if (value < 20) {
+        return 'tomato';
+    } else {
+        return 'red';
+    }
+}
+
 function drawMap(year) {
     const width = 900;
     const height = 600;
-    const svg = d3.select('#map').append('svg').attr('width', '100%').attr('height', '100%');
-    const projection = d3.geoMercator().scale(140)
-        .translate([width / 2, height / 1.4]);
+    const svg = d3.select('#map').append('svg').attr('id', 'world-map').attr('width', '100%').attr('height', '100%');
+    const projection = d3.geoMercator().scale(140).translate([width / 2, height / 1.4]);
     const path = d3.geoPath(projection);
     let tooltip = d3.select("#tooltip");
     svg.selectAll('path').data(countryData).enter().append('path')
@@ -98,6 +117,11 @@ function drawMap(year) {
                 tooltip.transition()
                     .style('visibility', 'hidden');
             })
+}
+
+function cleanMap() {
+    const map = d3.select("#world-map");
+    map.remove();
 }
 
 function drawLegend() {
