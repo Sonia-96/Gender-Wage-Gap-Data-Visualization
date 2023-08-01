@@ -117,11 +117,25 @@ function fillColor(value) {
 function drawMap(year) {
     const width = 900;
     const height = 600;
-    const svg = d3.select('#map').append('svg').attr('id', 'world-map').attr('width', '100%').attr('height', '100%');
+    const svg = d3.select('#map').append('svg')
+        .attr('id', 'world-map')
+        .attr('width', '100%')
+        .attr('height', '100%');
+    const mapGroup = svg.append('g');
+    const zoom = d3.zoom()
+        .scaleExtent([1, 3])
+        .on('zoom', zoomed);
+    svg.call(zoom);
+
+    function zoomed(event) {
+        mapGroup.attr('transform', event.transform);
+    }
+    // TODO can I scale the map according to the size of the screen?
     const projection = d3.geoMercator().scale(140).translate([width / 2, height / 1.4]);
     const path = d3.geoPath(projection);
     let tooltip = d3.select("#tooltip");
-    svg.selectAll('path').data(countryData).enter().append('path')
+
+    mapGroup.selectAll('path').data(countryData).enter().append('path')
             .attr('d', path).attr('class', 'country')
             .attr('fill', (countryDataItem) => {
                 let id = countryDataItem['id'];
@@ -147,10 +161,10 @@ function drawMap(year) {
                         .style('visibility', 'visible')
                         .style('left', (event.x + 20) + 'px')
                         .style('top', (event.y + 20) + 'px')
-                        .style('opacity', 0.8)
+                        .style('opacity', 0.8);
                 }
             })
-            .on('mouseout', (countryDataItem) => {
+            .on('mouseout', () => {
                 tooltip.transition()
                     .style('visibility', 'hidden');
             })
