@@ -2,9 +2,9 @@ body {
     text-align: center;
 }
 
-.container {
+#map-container {
     display: flex;
-    height: 80vh;
+    height: 75vh;
     font-size: 20px;
 }
 
@@ -36,4 +36,35 @@ body {
     background-color: white;
     opacity: 0;
     padding: 10px;
+}
+
+#slider-container {
+    display: flex;
+    /* border: 1px solid black; */
+    align-items: center;
+    flex-direction: column;
+    margin: 0;
+}
+
+#slider {
+    display: inline-block;
+}
+
+.axis text, .slider text {
+    font-size: 18px;
+  }
+
+#slider-container p{
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+#legend-container {
+    fill: white;
+    opacity: 0.9;
+    stroke: gray;
+    stroke-width: 2;
+    position: absolute;
+    left: 50%;
+    top: 15vh;
 }
