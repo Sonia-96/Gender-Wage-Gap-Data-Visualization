@@ -27,6 +27,24 @@ body {
     stroke: #999;
 }
 
+.countries > path {
+    opacity: 0.8;
+    stroke: white;
+    stroke-width: 0.3;
+  }
+  
+.countries > path:hover {
+    opacity: 1;
+    stroke: red;
+    stroke-width: 1;
+    z-index: 1;
+}
+
+svg {
+    /* background-color: linen; */
+    cursor: move;
+}
+
 #tooltip {
     visibility: hidden;
     display: block;
