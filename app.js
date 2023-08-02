@@ -121,7 +121,7 @@ function drawMap(year) {
         .attr('id', 'world-map')
         .attr('width', '100%')
         .attr('height', '100%');
-    const mapGroup = svg.append('g');
+    const mapGroup = svg.append('g').attr("class", "countries");
     const zoom = d3.zoom()
         .scaleExtent([1, 3])
         .on('zoom', zoomed);
@@ -150,6 +150,9 @@ function drawMap(year) {
                 let value = getWageGap(year, id);
                 return value;
             })
+            .on('mouseenter', () => {
+                this.parentNode.append(this);
+            })
             .on('mouseover', (event, countryDataItem) => {
                 let id = countryDataItem['id'];
                 let country = getCountry(year, id);
@@ -159,8 +162,8 @@ function drawMap(year) {
                     d3.select("#year").text(year);
                     tooltip.transition()
                         .style('visibility', 'visible')
-                        .style('left', (event.x + 20) + 'px')
-                        .style('top', (event.y + 20) + 'px')
+                        .style('left', (event.x + 10) + 'px')
+                        .style('top', (event.y + 10) + 'px')
                         .style('opacity', 0.8);
                 }
             })
