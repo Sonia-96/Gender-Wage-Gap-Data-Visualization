@@ -46,23 +46,23 @@ function drawLegend() {
 
     // Create color rectangles in the legend
     const legendColors = legendSvg.selectAll("rect")
-    .data(legendData) // Adjust the range based on your data values
-    .enter()
-    .append("rect")
-    .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)))
-    .attr("y", legendMargin.top)
-    .attr("width", legendWidth / 3)
-    .attr("height", legendHeight)
-    .attr("fill", d => colorScale(d));
+        .data(legendData) // Adjust the range based on your data values
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)))
+        .attr("y", legendMargin.top)
+        .attr("width", legendWidth / 3)
+        .attr("height", legendHeight)
+        .attr("fill", d => colorScale(d));
 
     // Add text labels beside the color rectangles
     const legendLabels = legendSvg.selectAll("text")
-    .data(legendData) // Adjust the range based on your data values
-    .enter()
-    .append("text")
-    .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)) + 20)
-    .attr("y", legendMargin.top + legendHeight + 15)
-    .text(d => d);
+        .data(legendData) // Adjust the range based on your data values
+        .enter()
+        .append("text")
+        .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)) + 20)
+        .attr("y", legendMargin.top + legendHeight + 15)
+        .text(d => d);
 }
 
 function drawSlider() {
@@ -115,6 +115,8 @@ function fillColor(value) {
     }
 }
 
+let tooltip = d3.select("#tooltip");
+
 function drawMap(year) {
     const width = 900;
     const height = 600;
@@ -134,44 +136,50 @@ function drawMap(year) {
     // TODO can I scale the map according to the size of the screen?
     const projection = d3.geoMercator().scale(140).translate([width / 2, height / 1.4]);
     const path = d3.geoPath(projection);
-    let tooltip = d3.select("#tooltip");
 
     mapGroup.selectAll('path').data(countryData).enter().append('path')
-            .attr('d', path).attr('class', 'country')
-            .attr('fill', (countryDataItem) => {
-                let id = countryDataItem['id'];
-                let value = getWageGap(year, id);
-                return fillColor(value);
-            })
-            .attr('data-fips', (countryDataItem) => {
-                return countryDataItem['id'];
-            })
-            .attr('data-wage', (countryDataItem) => {
-                let id = countryDataItem['id'];
-                let value = getWageGap(year, id);
-                return value;
-            })
-            .on('mouseenter', () => {
-                this.parentNode.append(this);
-            })
-            .on('mouseover', (event, countryDataItem) => {
-                let id = countryDataItem['id'];
-                let country = getCountry(year, id);
-                if (country != undefined) {
-                    d3.select("#name").text(country.name);
-                    d3.select("#value").text(country.value);
-                    d3.select("#year").text(year);
-                    tooltip.transition()
-                        .style('visibility', 'visible')
-                        .style('left', (event.x + 10) + 'px')
-                        .style('top', (event.y + 10) + 'px')
-                        .style('opacity', 0.8);
-                }
-            })
-            .on('mouseout', () => {
+        .attr('d', path).attr('class', 'country')
+        .attr('id', (countryDataItem) => `country-${countryDataItem['id']}`)
+        .attr('fill', (countryDataItem) => {
+            let id = countryDataItem['id'];
+            let value = getWageGap(year, id);
+            return fillColor(value);
+        })
+        .attr('data-fips', (countryDataItem) => {
+            return countryDataItem['id'];
+        })
+        .attr('data-wage', (countryDataItem) => {
+            let id = countryDataItem['id'];
+            let value = getWageGap(year, id);
+            return value;
+        })
+        .on('mouseover', (event, countryDataItem) => {
+            let id = countryDataItem['id'];
+            let country = getCountry(year, id);
+            if (country != undefined) {
+                d3.select("#name").text(country.name);
+                d3.select("#value").text(country.value);
+                d3.select("#year").text(year);
                 tooltip.transition()
-                    .style('visibility', 'hidden');
-            })
+                    .style('visibility', 'visible')
+                    .style('left', (event.x + 10) + 'px')
+                    .style('top', (event.y + 10) + 'px')
+                    .style('opacity', 0.8);
+            }
+
+            const barId = `#bar-${id <= 99 ? 0 :''}${id}`;
+            const bar = d3.select(barId);
+            bar.style('fill', 'yellow');
+        })
+        .on('mouseout', (event, countryDataItem) => {
+            tooltip.transition()
+                .style('visibility', 'hidden');
+            let id = countryDataItem['id'];
+            let value =  countryDataItem['value'];
+            const barId = `#bar-${id <= 99 ? 0 :''}${id}`;
+            const bar = d3.select(barId);
+            bar.style('fill', fillColor(value));
+        })
 }
 
 function cleanMap() {
@@ -232,7 +240,7 @@ function drawBarChart(year) {
 
             const countryId = `#country-${id <= 99 ? 0 : ''}${barDataItem[0]}`;
             const country = d3.select(countryId);
-            country.style('fill', 'yellow');
+            country.style('fill', 'black');
         })
         .on('mouseleave', (event, barDataItem) => {
             const countryId = `#country-${barDataItem[0] <= 99 ? 0 : ''}${barDataItem[0]}`;
