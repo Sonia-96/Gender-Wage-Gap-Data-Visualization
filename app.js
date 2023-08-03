@@ -180,62 +180,112 @@ function cleanMap() {
 }
 
 function drawBarChart(year) {
-// {year: {country: id, name, value}}
-    const temp = wageData[year] //grabs all relevant wage data for year of interest
+    let tooltip = d3.select("#tooltip");
+    const temp = wageData[year]
     maxValue = 0;
     const yearWageData = []
-    for (key in temp){
+    for (key in temp) {
         yearWageData.push([temp[key]['id'], key, temp[key]['value'], temp[key]['name']]);
         maxValue = Math.max(maxValue, temp[key]['value']);
     }
-    //sort the wage data in descending order - we want the largest bars to display at the top
     yearWageData.sort((a, b) => b[2] - a[2]);
 
-    //Dimensions of bar chart
-    let dim = {
-        'width': document.getElementById('barchart').offsetWidth-20,
-        'height' : document.getElementById('barchart').offsetHeight-30,
-        'margin' : 50
-    };
+    // Chart dimensions
+    const chartWidth = document.getElementById('barchart').offsetWidth - 20;
+    const chartHeight = document.getElementById('barchart').offsetHeight - 30;
 
-    //Create the SVG container for bar chart, pass it the dimensions
-    let svg = d3.select('#barchart').append('svg').attrs(dim);
+    // Create the SVG container for the chart
+    const svg = d3.select('#barchart')
+        .append('svg').attr('id', 'bar-chart')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight);
 
-    document.querySelector('#barchart').classList.add("center");
+    // Create a scale for the bar widths
+    const xScale = d3.scaleLinear()
+        .domain([0, maxValue])
+        .range([0, chartWidth - 40]); // Leave some space for labels
 
-    //Scale for bar widths
-    let scaleX = d3.scaleBand()
-        .domain([0,maxValue])
-        .range ([0, dim.width -40])
-        .padding(0.1)
-        .round(true);
-
-    // let scaleY = d3.scaleLinear()
-    //     .domain([0,maxValue])
-    //     .nice()
-    //     .range([dim.height - dim.margin, dim.margin])
-    //     .interpolate(d3.interpolateRound);
-
-    //to get different colors in the bars
-    let color = d3.scaleSequential()
-        .domain([0,maxValue])
-        .interpolator(d3.interpolateBlues);
-
-    //let axisX = d3.axisBottom(scaleX);
-    let axisY = d3.axisLeft(scaleY);
-
+    // Create the bars
     svg.selectAll('.bar')
         .data(yearWageData)
         .enter()
         .append('rect')
-        .   .attr('class', 'bar')
+        .attr('class', 'bar')
         .attr('id', d => `bar-${d[0]}`)
         .attr('x', 70) // Start all bars from the left edge
         .attr('y', (d, i) => i * (chartHeight / yearWageData.length)) // Distribute bars evenly
         .attr('width', (d) => xScale(d[2]))
         .attr('height', chartHeight / yearWageData.length - 5) // Add some spacing between bars
         .attr('fill', (d) => fillColor(d[2]))
+        .on('mouseover', (event, barDataItem) => {
+            let id = barDataItem[0];
+            let value = barDataItem[2];
+            let name = barDataItem[3];
+            d3.select("#name").text(name);
+            d3.select("#value").text(value);
+            d3.select("#year").text(year);
+            tooltip.transition()
+                .style('visibility', 'visible')
+                .style('left', (event.x + 10) + 'px')
+                .style('top', (event.y + 10) + 'px')
+                .style('opacity', 0.8);
 
-        .transition().duration(1000).attr('width',(d)=>scaleX(d.count)-scaleX(0));
+            const countryId = `#country-${id <= 99 ? 0 : ''}${barDataItem[0]}`;
+            const country = d3.select(countryId);
+            country.style('fill', 'yellow');
+        })
+        .on('mouseleave', (event, barDataItem) => {
+            const countryId = `#country-${barDataItem[0] <= 99 ? 0 : ''}${barDataItem[0]}`;
+            const country = d3.select(countryId);
+            country.style('fill', fillColor(barDataItem[2]));
+        })
 
+    // Add labels to the bars
+    svg.selectAll('.label')
+        .data(yearWageData)
+        .enter()
+        .append('text')
+        .attr('class', 'label')
+        .attr('x', 10) // Position the text at the end of each bar
+        .attr('y', (d, i) => i * (chartHeight / yearWageData.length) + (chartHeight / yearWageData.length) / 2) // Vertically center the text
+        .text((d) => d[1]) // Display the value of each bar as the label
+        .attr('font-size', 15)
+
+    const barChartBars = svg.selectAll('.bar');
+    barChartBars.on('click', function(event,barDataItem)
+    {
+        let id = this.id.split("-");
+        let barID = id[1];
+        let country = getCountry(year, barID);
+        d3.select(this)
+            .attr("fill", "rgb(0," + this + ",0)")
+
+        console.log(barDataItem);
+        console.log(barID);
+        console.log(typeof barID);
+        console.log(year);
+        console.log(country);
+
+        //const countryToHighlight = d3.select(country);
+        const countryToHighlight = d3.select(`#country-${barID}`);
+        countryToHighlight.classed('highlighted', true);
+
+        //let currentState = countryToHighlight.classed('highlighted')
+        //countryToHighlight.classed('highlighted', !currentState);
+
+    });
+
+    const deselectBarChartBars = svg.selectAll('.bar');
+    barChartBars.on('dblclick', function(event,deselectBarChartBars)
+    {
+        let id = this.id.split("-");
+        let barID = id[1];
+        let country = getCountry(year, barID);
+        let value = getWageGap(year, barID);
+        let color = fillColor(value);
+        d3.select(this)
+            .attr("fill", color);
+
+    });
 }
+
