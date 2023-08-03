@@ -2,6 +2,7 @@
 <html>
     <head>
         <!-- Include D3.js from a CDN -->
+        <script src="https://d3js.org/d3.v4.js"></script>
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <script src="https://d3js.org/topojson.v2.min.js"></script>
         <script src="https://d3js.org/d3-selection-multi.v1.min.js"></script>
@@ -11,10 +12,12 @@
     </head>
 
     <body>
-        <h1>Gender Wage Gap</h1>
+        <h1>Gender Wage Gap Around the World</h1>
         <div>
-            Gender Wage Gap around the world. source: <a href="https://data.oecd.org/earnwage/gender-wage-gap.htm">OECD - Gender Wage Gap</a>
+           "The gender wage gap is defined as the difference between median earnings of men and women relative to median earnings of men." Source: <a href="https://data.oecd.org/earnwage/gender-wage-gap.htm">OECD - Gender Wage Gap.</a>
+            Learn more about what you can do to improve wage equity: <a href ="https://www.unwomen.org/en/news/in-focus/csw61/equal-pay"> UN Women #Stoptherobbery. </a>
         </div>
+
         <div id="legend-container">
             <svg width="200" height="50" id="legend"></svg>
         </div>
@@ -22,12 +25,11 @@
             <div id="map">
             </div>
             <div id="barchart">
-                barchart (vertical)
             </div>
         </div>
         <div id="tooltip">
             Name: <span id="name"></span><br>
-            Value: <span id="value"></span><br>
+            Wage Gap %: <span id="value"></span><br>
             Year: <span id="year"></span><br>
         </div>
         <div id="slider-container">
