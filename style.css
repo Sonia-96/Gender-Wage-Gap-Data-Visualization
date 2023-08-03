@@ -2,7 +2,7 @@ body {
     text-align: center;
 }
 
-#map-container {
+#graph-container {
     display: flex;
     height: 75vh;
     font-size: 20px;
@@ -13,6 +13,7 @@ body {
     width: 70%;
     border: 5px blue solid;
     margin: 10px;
+    cursor: move;
 }
 
 #barchart {
@@ -20,6 +21,7 @@ body {
     width: 30%;
     border: 5px red solid;
     margin: 10px;
+    padding: 10px;
 }
 
 .country {
@@ -42,7 +44,7 @@ body {
 
 svg {
     /* background-color: linen; */
-    cursor: move;
+    
 }
 
 #tooltip {
@@ -85,4 +87,11 @@ svg {
     position: absolute;
     left: 50%;
     top: 15vh;
+}
+
+.country.highlighted {
+    opacity: 1;
+    stroke: red;
+    stroke-width: 1;
+    z-index: 1;
 }

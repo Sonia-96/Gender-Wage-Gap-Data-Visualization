@@ -12,6 +12,7 @@ window.onload = async function() {
                     console.log(wageData);
                     drawMap(2020);
                     drawLegend();
+                    drawBarChart(2020);
                     drawSlider();
                 }
             } 
@@ -45,23 +46,23 @@ function drawLegend() {
 
     // Create color rectangles in the legend
     const legendColors = legendSvg.selectAll("rect")
-    .data(legendData) // Adjust the range based on your data values
-    .enter()
-    .append("rect")
-    .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)))
-    .attr("y", legendMargin.top)
-    .attr("width", legendWidth / 3)
-    .attr("height", legendHeight)
-    .attr("fill", d => colorScale(d));
+        .data(legendData) // Adjust the range based on your data values
+        .enter()
+        .append("rect")
+        .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)))
+        .attr("y", legendMargin.top)
+        .attr("width", legendWidth / 3)
+        .attr("height", legendHeight)
+        .attr("fill", d => colorScale(d));
 
     // Add text labels beside the color rectangles
     const legendLabels = legendSvg.selectAll("text")
-    .data(legendData) // Adjust the range based on your data values
-    .enter()
-    .append("text")
-    .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)) + 20)
-    .attr("y", legendMargin.top + legendHeight + 15)
-    .text(d => d);
+        .data(legendData) // Adjust the range based on your data values
+        .enter()
+        .append("text")
+        .attr("x", (d, i) => legendMargin.left + (i * (legendWidth / 5)) + 20)
+        .attr("y", legendMargin.top + legendHeight + 15)
+        .text(d => d);
 }
 
 function drawSlider() {
@@ -76,6 +77,8 @@ function drawSlider() {
         d3.select("#slider-value").text(val);
         cleanMap();
         drawMap(val);
+        cleanBarChart();
+        drawBarChart(val);
     })
 
     d3.select('#slider')
@@ -114,6 +117,8 @@ function fillColor(value) {
     }
 }
 
+let tooltip = d3.select("#tooltip");
+
 function drawMap(year) {
     const width = 900;
     const height = 600;
@@ -133,10 +138,10 @@ function drawMap(year) {
     // TODO can I scale the map according to the size of the screen?
     const projection = d3.geoMercator().scale(140).translate([width / 2, height / 1.4]);
     const path = d3.geoPath(projection);
-    let tooltip = d3.select("#tooltip");
 
     mapGroup.selectAll('path').data(countryData).enter().append('path')
             .attr('d', path).attr('class', 'country')
+            .attr('id', (countryDataItem) => `country-${countryDataItem['id']}`)
             .attr('fill', (countryDataItem) => {
                 let id = countryDataItem['id'];
                 let value = getWageGap(year, id);
@@ -149,9 +154,6 @@ function drawMap(year) {
                 let id = countryDataItem['id'];
                 let value = getWageGap(year, id);
                 return value;
-            })
-            .on('mouseenter', () => {
-                this.parentNode.append(this);
             })
             .on('mouseover', (event, countryDataItem) => {
                 let id = countryDataItem['id'];
@@ -166,10 +168,19 @@ function drawMap(year) {
                         .style('top', (event.y + 10) + 'px')
                         .style('opacity', 0.8);
                 }
+
+                const barId = `#bar-${id <= 99 ? 0 :''}${id}`;
+                const bar = d3.select(barId);
+                bar.style('fill', 'yellow');
             })
-            .on('mouseout', () => {
+            .on('mouseout', (event, countryDataItem) => {
                 tooltip.transition()
                     .style('visibility', 'hidden');
+                let id = countryDataItem['id'];
+                let value =  countryDataItem['value'];
+                const barId = `#bar-${id <= 99 ? 0 :''}${id}`;
+                const bar = d3.select(barId);
+                bar.style('fill', fillColor(value));
             })
 }
 
@@ -177,4 +188,95 @@ function cleanMap() {
     const map = d3.select("#world-map");
     map.remove();
 }
+
+function drawBarChart(year) {
+    const temp = wageData[year]
+    maxValue = 0;
+    const yearWageData = []
+    for (key in temp) {
+        yearWageData.push([temp[key]['id'], key, temp[key]['value'], temp[key]['name']]);
+        maxValue = Math.max(maxValue, temp[key]['value']);
+    }
+    yearWageData.sort((a, b) => b[2] - a[2]);
+
+    // Chart dimensions
+    const chartWidth = document.getElementById('barchart').offsetWidth - 20;
+    const chartHeight = document.getElementById('barchart').offsetHeight - 30;
+
+    // Create the SVG container for the chart
+    const svg = d3.select('#barchart')
+        .append('svg').attr('id', 'bar-chart')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight);
+
+    // Create a scale for the bar widths
+    const xScale = d3.scaleLinear()
+        .domain([0, maxValue])
+        .range([0, chartWidth - 40]); // Leave some space for labels
+
+
+    // Create the bars
+    svg.selectAll('.bar')
+        .data(yearWageData)
+        .enter()
+        .append('rect')
+        .attr('class', 'bar')
+        .attr('id', d => `bar-${d[0]}`)
+        .attr('x', 70) // Start all bars from the left edge
+        .attr('y', (d, i) => i * (chartHeight / yearWageData.length)) // Distribute bars evenly
+        .attr('width', (d) => xScale(d[2]))
+        .attr('height', chartHeight / yearWageData.length - 5) // Add some spacing between bars
+        .attr('fill', (d) => fillColor(d[2]))
+        .on('mouseover', (event, barDataItem) => {
+            let id = barDataItem[0];
+            let value = barDataItem[2];
+            let name = barDataItem[3];
+            d3.select("#name").text(name);
+            d3.select("#value").text(value);
+            d3.select("#year").text(year);
+            tooltip.transition()
+                .style('visibility', 'visible')
+                .style('left', (event.x + 10) + 'px')
+                .style('top', (event.y + 10) + 'px')
+                .style('opacity', 0.8);
+
+            const countryId = `#country-${id <= 99 ? 0 :''}${barDataItem[0]}`;
+            const country = d3.select(countryId);
+            country.style('fill', 'yellow');
+        })
+        .on('mouseleave', (event, barDataItem) => {
+            const countryId = `#country-${barDataItem[0] <= 99 ? 0 :''}${barDataItem[0]}`;
+            const country = d3.select(countryId);
+            country.style('fill', fillColor(barDataItem[2]));
+        })
+            
+        
+
+    // Add labels to the bars
+    svg.selectAll('.label')
+        .data(yearWageData)
+        .enter()
+        .append('text')
+        .attr('class', 'label')
+        .attr('x', 10) // Position the text at the end of each bar
+        .attr('y', (d, i) => i * (chartHeight / yearWageData.length) + (chartHeight / yearWageData.length) / 2) // Vertically center the text
+        .text((d) => d[1]) // Display the value of each bar as the label
+        .attr('font-size', 15)
+        
+}
+
+function cleanBarChart() {
+    d3.selectAll("#bar-chart").remove();
+}
+
+// const barChartBars = svg.selectAll('.bar');
+// barChartBars.on('click', function (event, barDataItem) {
+//     // Get the ID of the clicked bar
+//     const barId = barDataItem['id'];
+//     console.log(barId);
+
+//     // Highlight the corresponding country in the map based on the bar ID
+//     const countryToHighlight = d3.select(`#country-${barId}`);
+//     countryToHighlight.classed('highlighted', true);
+// });
 
