@@ -4,7 +4,7 @@ body {
 
 #graph-container {
     display: flex;
-    height: 75vh;
+    height: 66vh;
     font-size: 20px;
 }
 
@@ -17,6 +17,7 @@ body {
 }
 
 #barchart {
+    align-items: left;
     display: inline-block;
     width: 30%;
     border: 5px red solid;
@@ -40,11 +41,6 @@ body {
     stroke: red;
     stroke-width: 1;
     z-index: 1;
-}
-
-svg {
-    /* background-color: linen; */
-    
 }
 
 #tooltip {
@@ -72,7 +68,11 @@ svg {
 
 .axis text, .slider text {
     font-size: 18px;
-  }
+}
+
+#legend text{
+    font-size: 15px;
+}
 
 #slider-container p{
     padding: 0;
@@ -85,13 +85,15 @@ svg {
     stroke: gray;
     stroke-width: 2;
     position: absolute;
-    left: 50%;
-    top: 15vh;
+    left: 48%;
+    top: 17vh;
 }
 
-.country.highlighted {
-    opacity: 1;
-    stroke: red;
-    stroke-width: 1;
-    z-index: 1;
+.highlighted {
+    fill: #0066cc;
+}
+
+#slider-header {
+    font-size: 20px;
+    font-weight: bold;
 }
