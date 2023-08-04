@@ -97,3 +97,10 @@ body {
     font-size: 20px;
     font-weight: bold;
 }
+
+.bar:hover {
+    opacity: 1;
+    stroke: red;
+    stroke-width: 2;
+    z-index: 1;
+}
