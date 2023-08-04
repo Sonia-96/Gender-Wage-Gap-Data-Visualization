@@ -318,4 +318,3 @@ function drawBarChart(year) {
 function cleanBarChart() {
     d3.selectAll("#bar-chart").remove();
 }
-
